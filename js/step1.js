@@ -51,15 +51,28 @@ function shellprogram(path){
     const { spawnSync } = require('child_process');
     const result = spawnSync('bash',[path]);
     console.log(result.stdout.toString());
-    console.log(result.stderr.toString());
-    console.log('end')
+    
+}
+function jobs(){
+    const { execSync } = require('child_process');
+    const output = execSync('jobs').toString();
+    console.log(output);
+
 }
 function keepprocess(pid){
-    const { execSync } = require('child_process');
-    //const output = execSync(`kill -STOP ${pid}`).toString();
-    //console.log(output);
+    /*const { execSync } = require('child_process');
     const output = execSync(`bg`).toString();
-    console.log(output);
+    console.log(output);*/
+    const { exec } = require('child_process');
+    exec(`kill -CONT ${pid} `,(err,stdout,stderr) => {
+        if (err) {
+            console.error(err);
+            return
+        }
+        console.log(stdout)
+        console.log(stderr)
+    })
+    
 }
 const readline = require('readline');
 const r1 = readline.createInterface({
@@ -69,8 +82,8 @@ const r1 = readline.createInterface({
 readline.emitKeypressEvents(process.stdin)
 process.stdin.setRawMode(true);
 process.stdin.on('keypress', (str,key) => {
-    if (key.ctrl&&key.name==='e') {
-        console.log("exit with control e")
+    if (key.ctrl&&key.name==='p') {
+        console.log("exit with control p")
         process.exit();
     }
 });
@@ -98,15 +111,19 @@ if(input == 'exit') {
                     if(order[1]=='-c'){
                         restartprocess(order[2]);
                     }else{
-                        console.log("wrong")
+                        console.log("wrong");
                     }
                 }
             }
-            break
+            break;
         case 'keep':
-            //stopprocess(order[2]);
-            keepprocess(order[2]);
-            break
+            //stopprocess(order[1]);
+            stopprocess(order[1]);
+            keepprocess(order[1]);
+            break;
+        case 'jobs':
+            jobs();
+            break;
         default:
             if(order.length==1){
                 shellprogram(order[0]);
