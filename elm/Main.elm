@@ -87,7 +87,6 @@ update msg model =
         Err _ ->
           ({model | signal = Failure}, Cmd.none)
           
-          
     Answer usranswer ->
       ({model | answer=usranswer}, Cmd.none)
       
@@ -96,7 +95,10 @@ update msg model =
       
     MoreGame ->
       (model, Random.generate Randint (Random.int 0 999) )
-
+      
+      
+ -- Get random Quote
+ 
 getRandomGame : Model -> Int -> Cmd Msg
 getRandomGame model int= 
   Http.get
@@ -104,6 +106,8 @@ getRandomGame model int=
     , expect = Http.expectJson GotQuote quoteDecoder
     }
     
+ -- Decode Json
+ 
 quoteDecoder : Decoder (List (List Meaning))
 quoteDecoder =
     (Json.Decode.list typeMeaningsDecoder)
