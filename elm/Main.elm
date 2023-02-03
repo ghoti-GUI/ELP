@@ -155,30 +155,35 @@ view model =
         Http.BadUrl string ->
           div []
             [ text "I was unable to load the quote."
+            , pre[][text "\n"]
             , text ("BadUrl: "++string)
             , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
             ]
         Http.Timeout ->
           div []
             [ text "I was unable to load the quote."
+            , pre[][text "\n"]
             , text ("Timeout")
             , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
             ]
         Http.NetworkError ->
           div []
             [ text "I was unable to load the quote."
+            , pre[][text "\n"]
             , text ("NetworkError")
             , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
             ]
         Http.BadStatus int ->
           div []
             [ text "I was unable to load the quote."
+            , pre[][text "\n"]
             , text ("BadStatus: "++(String.fromInt int))
             , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
             ]
         Http.BadBody string ->
           div []
             [ text "I was unable to load the quote."
+            , pre[][text "\n"]
             , text ("BadBody: "++string)
             , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
             ]
