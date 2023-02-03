@@ -43,7 +43,7 @@ type alias Model =
   }
   
 type Signal
-  = Failure
+  = Failure Http.Error
   | Loading
   | Success (List (List Meaning))
 
@@ -84,8 +84,8 @@ update msg model =
       case result of
         Ok quote ->
           ({model | signal = Success quote}, Cmd.none)
-        Err _ ->
-          ({model | signal = Failure}, Cmd.none)
+        Err err ->
+          ({model | signal = Failure err}, Cmd.none)
           
     Answer usranswer ->
       ({model | answer=usranswer}, Cmd.none)
@@ -96,8 +96,6 @@ update msg model =
     MoreGame ->
       (model, Random.generate Randint (Random.int 0 999) )
       
-      
- -- Get random Quote
  
 getRandomGame : Model -> Int -> Cmd Msg
 getRandomGame model int= 
@@ -106,7 +104,10 @@ getRandomGame model int=
     , expect = Http.expectJson GotQuote quoteDecoder
     }
     
+    
+    
  -- Decode Json
+ 
  
 quoteDecoder : Decoder (List (List Meaning))
 quoteDecoder =
@@ -148,12 +149,40 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   case model.signal of
-    Failure ->
-      div[]
-      [ text "I was unable to load the quote."
-      , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
-      ]
-
+    -- to see what reason cause the failure
+    Failure err ->
+      case err of
+        Http.BadUrl string ->
+          div []
+            [ text "I was unable to load the quote."
+            , text ("BadUrl: "++string)
+            , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
+            ]
+        Http.Timeout ->
+          div []
+            [ text "I was unable to load the quote."
+            , text ("Timeout")
+            , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
+            ]
+        Http.NetworkError ->
+          div []
+            [ text "I was unable to load the quote."
+            , text ("NetworkError")
+            , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
+            ]
+        Http.BadStatus int ->
+          div []
+            [ text "I was unable to load the quote."
+            , text ("BadStatus: "++(String.fromInt int))
+            , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
+            ]
+        Http.BadBody string ->
+          div []
+            [ text "I was unable to load the quote."
+            , text ("BadBody: "++string)
+            , button [ onClick MoreGame, style "display" "block" ] [text "try again"]
+            ]
+            
     Loading ->
       text "Loading..."
 
@@ -210,7 +239,9 @@ getWord words nbr =
     Maybe.withDefault "no word" newword
     
 
---get partOfSpeechs and definisions  
+
+-- get partOfSpeechs and definisions  
+
 
 getDefinition : (List (List Meaning)) -> Int -> Html Msg
 getDefinition quote int =
